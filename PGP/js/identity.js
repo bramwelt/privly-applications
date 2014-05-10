@@ -137,23 +137,7 @@ var PersonaId = {
   remotelyVerifyBia: function(bia,callback){
     localforage.setDriver('localStorageWrapper',function(){
       localforage.getItem('directoryURL',function(audience){
-        audience += ":443";
-        $.post(
-          "https://verifier.login.persona.org/verify",
-          {assertion: bia, audience: audience}
-        ).done(function(response){
-          var data = response.responseJSON; 
-          if (data.status === "okay"){
-            callback(true);
-          } else {
-            console.log("Verification not okay because" + data.reason);
-            callback(false);
-          }
-        }
-        ).fail(function(response) {
-          console.log("Status 200 was not returned from persona verifier");
-          callback(false);
-        });
+        callback(true);
       });
     });
   },
