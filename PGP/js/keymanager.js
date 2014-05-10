@@ -15,40 +15,24 @@
  *    directory provider.
  */
 var keyManager = {
-
   /**
-   * This function takes a list of keys and returns the values retrieved from
-   * localforage.
+   * This function sets an item in localforage.
    */
-  getDatas: function(keys,callback) {
-    var datas = {
-      len: 0,
-      values: {}
-    };
+  setItem: function(key, value, callback){
     localforage.setDriver('localStorageWrapper', function() {
-      for (var i = 0; i < keys.length; i++) {
-        localforage.getItem(keys[i], function(data) {
-          if (data != undefined) {
-            datas.values[keys[i]] = data;
-          } else {
-            console.log("Could not get", keys[i]);
-          }
-          datas.len += 1;
-          if (datas.len === keys.length){
-            callback(datas.values);
-          }
-        });
-      }
+      localforage.setItem(key, value, function(result){
+        callback(result);
+      });
     });
   },
 
   /**
-   * This function sets an item in localforage.
+   * This function gets an item from localforage.
    */
-  setDatas: function(key,value,callback){
+  getItem: function(key, value, callback){
     localforage.setDriver('localStorageWrapper', function() {
-      localforage.setItem(key,value,function(result){
-        callback(result);
+      localforage.getItem(key, function(value){
+        callback(value);
       });
     });
   },
@@ -57,21 +41,17 @@ var keyManager = {
    * Update the localforage key with the value passed in
    */
   setNewPGPKey: function(key, appended_value, callback){
-    localforage.setDriver('localStorageWrapper', function() {
-      localforage.getItem('email', function(email) {
-        localforage.getItem(key, function(value) {
-          if (value === null){
-            value = {};
-          }
-          if (email in value){
-            value[email].unshift(appended_value);
-          } else {
-            value[email] = [appended_value];
-          }
-          localforage.setItem(key,value,function(result){
-            callback(result);
-          });
-        });
+    this.getItem('email', function(email) {
+      this.getItem(key, function(value) {
+        if (value === null){
+          value = {};
+        }
+        if (email in value){
+          value[email].unshift(appended_value);
+        } else {
+          value[email] = [appended_value];
+        }
+        this.setItem(key, value, callback);
       });
     });
   },
